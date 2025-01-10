@@ -15,6 +15,18 @@ if (!customElements.get('product-info')) {
         super();
 
         this.quantityInput = this.querySelector('.quantity__input');
+        // delete
+        // const va = document.querySelector(
+        //   `[data-variant-availability]`
+        // );
+           
+        // parse this as json
+        // this needs to be updated to be dynamic
+        // const vaHTML = va.innerHTML;
+        // const vaJSON = JSON.parse(vaHTML);
+        // this.idToName = vaJSON.id_to_name;
+        // this.nameToId = vaJSON.name_to_id;
+        // this.variantOptions = vaJSON.variant_options;
       }
 
       connectedCallback() {
@@ -60,15 +72,206 @@ if (!customElements.get('product-info')) {
         });
       }
 
-      handleOptionValueChange({ data: { event, target, selectedOptionValues } }) {
+      handleOptionValueChange({ data: { event, target, selectedOptionValues, optionsLength, position } }) {
         if (!this.contains(event.target)) return;
+        
+        // start new feature
+        console.log('who is this???', this);
+        // maybe overwrite selectedOptions here with valid ones based on first and second
+        // maybe loop through variants create array of arrays [[1111,22222,3333], [1111, 2222, 4444]]
+        // or object with option1 as key
+        // on click parse __main-1 through 3 to know what option they selected
+        // search PUB_SUB_EVENTS.optionValueSelectionChange and overwrite that to send the option number
+        console.log('this.handleOptionValueChange', { event, target, selectedOptionValues, optionsLength, position });
+      
+        const va = document.querySelector(
+          `[data-variant-availability]`
+        );
+           
+        const vaHTML = va.innerHTML;
+        const vaJSON = JSON.parse(vaHTML);
+        // console.log('vaJSON', vaJSON);
+        
+        this.idToName = vaJSON.id_to_name;
+        this.nameToId = vaJSON.name_to_id;
+        this.variantOptions = vaJSON.variant_options;
+        console.log('variantOptions', this.variantOptions);
+        
+        const selectedOption1 = parseInt(selectedOptionValues[0]);
+        const opt1 = this.idToName.option1[selectedOption1];
+        const selectedOption2 = parseInt(selectedOptionValues[1]);
+        const opt2 = this.idToName.option2[selectedOption2];
+        const selectedOption3 = parseInt(selectedOptionValues[2]);
+        const opt3 = this.idToName.option3[selectedOption3];
+
+        
+        if (position === '1') {
+          console.log('change in option 1');
+          // find first available variant with option 1
+          const optionsWith1 = this.variantOptions.filter(v => v.option1 === opt1);
+          console.log('optionsWith1', optionsWith1);
+          if (optionsWith1.length === 0) {
+            console.log('no variants with option 1');
+            return;
+          }
+          // check selecetd option 2
+          const optionsWith2 = optionsWith1.filter(v => v.option2 === opt2);
+          console.log('optionsWith2', optionsWith2);
+          let match = false;
+          if (optionsWith2.length > 0) {
+            match = true;
+          }
+          console.log('match', match);
+          if (!match) {
+            // find first match using option 1
+            const firstMatch = optionsWith1[0];
+            // update selectedOptionValues
+            selectedOptionValues[1] = this.nameToId.option2[firstMatch.option2];
+            selectedOptionValues[2] = this.nameToId.option3[firstMatch.option3];
+            // if combined listing
+            if (optionsLength === 4) {
+              selectedOptionValues[3] = this.nameToId.option4[firstMatch.option4];
+            }
+          } else { 
+            const firstMatch = optionsWith2[0];
+            selectedOptionValues[1] = this.nameToId.option2[firstMatch.option2];
+            selectedOptionValues[2] = this.nameToId.option3[firstMatch.option3];
+            // if combined listing
+            if (optionsLength === 4) {
+              selectedOptionValues[3] = this.nameToId.option4[firstMatch.option4];
+            }
+          }
+        } else if (position === '2') {
+          console.log('change in option 2');
+          // find first available variant with option 2
+          const optionsWith2 = this.variantOptions.filter(v => v.option2 === opt2);
+          console.log('optionsWith2', optionsWith2);
+          if (optionsWith2.length === 0) {
+            console.log('no variants with option 2');
+            return;
+          }
+          // check selecetd option 1
+          const optionsWith1 = optionsWith2.filter(v => v.option1 === opt1);
+          console.log('optionsWith1', optionsWith1);
+          let match = false;
+          if (optionsWith1.length > 0) {
+            match = true;
+          }
+          if (!match) {
+            // find first match using option 2
+            const firstMatch = optionsWith2[0];
+            // update selectedOptionValues
+            selectedOptionValues[0] = this.nameToId.option1[firstMatch.option1];
+            selectedOptionValues[2] = this.nameToId.option3[firstMatch.option3];
+            // if combined listing
+            if (optionsLength === 4) {
+              selectedOptionValues[3] = this.nameToId.option4[firstMatch.option4];
+            }
+          } else {
+            const firstMatch = optionsWith1[0];
+            selectedOptionValues[0] = this.nameToId.option1[firstMatch.option1];
+            selectedOptionValues[2] = this.nameToId.option3[firstMatch.option3];
+            // if combined listing
+            if (optionsLength === 4) {
+              selectedOptionValues[3] = this.nameToId.option4[firstMatch.option4];
+            }
+          }
+        } else if (position === '3') {
+          // find first available variant with option 3
+          console.log('change in option 3');
+          const optionsWith3 = this.variantOptions.filter(v => v.option3 === opt3);
+          console.log('optionsWith3', optionsWith3);
+          if (optionsWith3.length === 0) {
+            console.log('no variants with option 3');
+            return;
+          }
+          // check selecetd option 1
+          const optionsWith1 = optionsWith3.filter(v => v.option1 === opt1);
+          console.log('optionsWith1', optionsWith1);
+          let match = false;
+          if (optionsWith1.length > 0) {
+            match = true;
+          }
+          console.log('match', match);
+          if (!match) {
+            // find first match using option 3
+            const firstMatch = optionsWith3[0];
+            // update selectedOptionValues
+            selectedOptionValues[0] = this.nameToId.option1[firstMatch.option1];
+            selectedOptionValues[1] = this.nameToId.option2[firstMatch.option2];
+            // if combined listing
+            if (optionsLength === 4) {
+              selectedOptionValues[3] = this.nameToId.option4[firstMatch.option4];
+            }
+          } else {
+            const firstMatch = optionsWith1[0];
+            selectedOptionValues[0] = this.nameToId.option1[firstMatch.option1];
+            selectedOptionValues[1] = this.nameToId.option2[firstMatch.option2];
+            // if combined listing
+            if (optionsLength === 4) {
+              selectedOptionValues[3] = this.nameToId.option4[firstMatch.option4];
+            }
+          }
+        } else if (position === '4') { 
+          // find first availalbe with option 4
+          console.log('change in option 4');
+          const selectedOption4 = parseInt(selectedOptionValues[3]);
+          console.log('selectedOption4', selectedOption4);
+          const opt4 = this.idToName.option4[selectedOption4];
+          const optionsWith4 = this.variantOptions.filter(v => v.option4 === opt4);
+          console.log('optionsWith4', optionsWith4);
+          if (optionsWith4.length === 0) {
+            console.log('no variants with option 4');
+            return;
+          }
+          // check selected option 1
+          const optionsWith1 = optionsWith4.filter(v => v.option1 === opt1);
+          console.log('optionsWith1', optionsWith1);
+          let match = false;
+          if (optionsWith1.length > 0) {
+            match = true;
+          }
+          console.log('match', match);
+          if (!match) {
+            // find first match using option 4
+            const firstMatch = optionsWith4[0];
+            // update selectedOptionValues
+            selectedOptionValues[0] = this.nameToId.option1[firstMatch.option1];
+            selectedOptionValues[1] = this.nameToId.option2[firstMatch.option2];
+            selectedOptionValues[2] = this.nameToId.option3[firstMatch.option3];
+          } else { 
+            const firstMatch = optionsWith1[0];
+            selectedOptionValues[0] = this.nameToId.option1[firstMatch.option1];
+            selectedOptionValues[1] = this.nameToId.option2[firstMatch.option2];
+            selectedOptionValues[2] = this.nameToId.option3[firstMatch.option3];
+          }
+        } else { 
+          console.log('position', position);
+          console.log('something went wrong');
+        }
+        
+        console.log('updated selectedOptionValues', selectedOptionValues);
+        
+        // end new feature
 
         this.resetProductFormState();
+        
+        // overwriite the product url based on first option
+        // const firstOption = document.querySelector('input[data-option-position="1"][data-option-value-id]="' + selectedOptionValues[0] + '"]');
+        const firstOption = document.querySelector('[data-option-value-id="' + selectedOptionValues[0] + '"]');
+        console.log('firstOption', firstOption);
+        let productUrl = target.dataset.productUrl || this.pendingRequestUrl || this.dataset.url
+        if (firstOption) { 
+          console.log('firstOption.dataset.productUrl', firstOption.dataset.productUrl);
+          productUrl = firstOption.dataset.productUrl;
+        }
 
-        const productUrl = target.dataset.productUrl || this.pendingRequestUrl || this.dataset.url;
+        // const productUrl = target.dataset.productUrl || this.pendingRequestUrl || this.dataset.url;
         this.pendingRequestUrl = productUrl;
         const shouldSwapProduct = this.dataset.url !== productUrl;
         const shouldFetchFullPage = this.dataset.updateUrl === 'true' && shouldSwapProduct;
+        console.log('shouldSwapProduct', shouldSwapProduct);
+        console.log('shouldFetchFullPage', shouldFetchFullPage);
 
         this.renderProductInfo({
           requestUrl: this.buildRequestUrlWithParams(productUrl, selectedOptionValues, shouldFetchFullPage),
@@ -77,6 +280,8 @@ if (!customElements.get('product-info')) {
             ? this.handleSwapProduct(productUrl, shouldFetchFullPage)
             : this.handleUpdateProductInfo(productUrl),
         });
+    
+        
       }
 
       resetProductFormState() {
@@ -86,6 +291,7 @@ if (!customElements.get('product-info')) {
       }
 
       handleSwapProduct(productUrl, updateFullPage) {
+
         return (html) => {
           this.productModal?.remove();
 
@@ -162,6 +368,8 @@ if (!customElements.get('product-info')) {
       }
 
       handleUpdateProductInfo(productUrl) {
+        // delete
+        console.log('this.handleUpdateProductInfo', { productUrl });
         return (html) => {
           const variant = this.getSelectedVariant(html);
 

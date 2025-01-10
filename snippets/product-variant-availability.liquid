@@ -1,0 +1,105 @@
+{% comment %}
+  <script type="application/json" data-variant-availability>
+    {
+      "variant_options": [
+        {%- for variant in product.variants -%}
+          {
+            "option1": "{{ variant.option1 }}",
+            "option2": "{{ variant.option2 }}",
+            "option3": "{{ variant.option3 }}"
+          }{%- unless forloop.last -%},{%- endunless -%}
+        {%- endfor -%}
+      ],
+      "id_to_name": {
+        {%- for option in product.options_with_values -%}
+          "option{{ forloop.index }}": {
+            {%- for value in option.values -%}
+              "{{ value.id }}": "{{ value.name }}"{%- unless forloop.last -%},{%- endunless -%}
+            {%- endfor -%}
+          }{%- unless forloop.last -%},{%- endunless -%}
+        {%- endfor -%}
+      },
+      "name_to_id": {
+        {%- for option in product.options_with_values -%}
+          "option{{ forloop.index }}": {
+            {%- for value in option.values -%}
+              "{{ value.name }}": "{{ value.id }}"{%- unless forloop.last -%},{%- endunless -%}
+            {%- endfor -%}
+          }{%- unless forloop.last -%},{%- endunless -%}
+        {%- endfor -%}
+      }
+    }
+  </script>
+{% endcomment %}
+
+<script type="application/json" data-variant-availability>
+  {
+    {%- comment -%}
+      Hacky way of getting combined listings to work with automatically selecting the first available variant.
+      Combined Listings should have the product_url in the option values.
+    {%- endcomment -%}
+    {%- assign handles = '' -%}
+    {%- for option in product.options_with_values -%}
+      {%- for value in option.values -%}
+        {%- assign temp_arr = handles | split: ',' -%}
+        {%- assign product_handle = value.product_url | remove: '/products/' -%}
+        {%- unless temp_arr contains product_handle -%}
+          {%- assign handles = handles | append: product_handle | append: ',' %}
+        {%- endunless -%}
+      {%- endfor -%}
+    {%- endfor -%}
+    {%- assign handles = handles | remove_last: ',' -%}
+    {%- assign handles_arr = handles | split: ',' -%}
+    "handles": [
+      {%- for handle in handles_arr -%}
+        "{{ handle }}"{%- unless forloop.last -%},{%- endunless -%}
+      {%- endfor -%}
+    ],
+    "variant_options": [
+        {%- comment -%}
+          If combined listings, loop through all the handles and get the variant options.
+          If not combined listings, get the variant options for the current product.
+        {%- endcomment -%}
+        {%- if handle_arr.length > 0 -%}
+          {%- for handle in handles_arr -%}
+            {%- assign prod = all_products[handle] -%}
+            {%- for variant in prod.variants -%}
+              {
+                "handle": "{{ handle }}",
+                "option1": "{{ variant.options[0] }}",
+                "option2": "{{ variant.options[1] }}",
+                "option3": "{{ variant.options[2] }}",
+                "option4": "{{ variant.options[3] }}"
+              }{%- unless forloop.last -%},{%- endunless -%}
+            {%- endfor -%}{%- unless forloop.last -%},{%- endunless -%}
+          {%- endfor -%}
+        {%-  else -%}
+          {%- for variant in product.variants -%}
+            {
+              "option1": "{{ variant.option1 }}",
+              "option2": "{{ variant.option2 }}",
+              "option3": "{{ variant.option3 }}"
+            }{%- unless forloop.last -%},{%- endunless -%}
+          {%- endfor -%}
+        {%- endif -%}
+      ],
+    "id_to_name": {
+      {%- for option in product.options_with_values -%}
+        "option{{ forloop.index }}": {
+          {%- for value in option.values -%}
+            "{{ value.id }}": "{{ value.name }}"{%- unless forloop.last -%},{%- endunless -%}
+          {%- endfor -%}
+        }{%- unless forloop.last -%},{%- endunless -%}
+      {%- endfor -%}
+    },
+    "name_to_id": {
+      {%- for option in product.options_with_values -%}
+        "option{{ forloop.index }}": {
+          {%- for value in option.values -%}
+            "{{ value.name }}": "{{ value.id }}"{%- unless forloop.last -%},{%- endunless -%}
+          {%- endfor -%}
+        }{%- unless forloop.last -%},{%- endunless -%}
+      {%- endfor -%}
+    }
+  }
+</script>

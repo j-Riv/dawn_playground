@@ -50,6 +50,7 @@
   {%- capture input_dataset -%}
     data-product-url="{{ value.product_url }}"
     data-option-value-id="{{ value.id }}"
+    data-option-position="{{ option.position }}"
   {%- endcapture -%}
 
   {%- capture label_unavailable -%}
@@ -95,6 +96,7 @@
       {{ value -}}
       {{ label_unavailable }}
     </label>
+
   {%- elsif picker_type == 'dropdown' or picker_type == 'swatch_dropdown' -%}
     <option
       id="{{ input_id }}"

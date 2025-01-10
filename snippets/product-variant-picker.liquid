@@ -9,6 +9,7 @@
   {% render 'product-variant-picker', product: product, block: block, product_form_id: product_form_id %}
 {% endcomment %}
 {%- unless product.has_only_default_variant -%}
+  {%- render 'product-variant-availability' -%}
   <variant-selects
     id="variant-selects-{{ section.id }}"
     data-section="{{ section.id }}"
@@ -92,3 +93,8 @@
     </script>
   </variant-selects>
 {%- endunless -%}
+
+<script>
+  console.log('product.options_with_values', {{ product.options_with_values | json }});
+  console.log('product', {{ product | json }});
+</script>
